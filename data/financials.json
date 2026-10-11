@@ -1,0 +1,60 @@
+{
+  "_about": "Hand-checked figures from the Senus PLC Information Document (data/sources/senus-information-document-2025.pdf). Used as the seed when no API key is set, and as the answer key when checking AI extraction. Costs/outflows are negative, as bracketed in the accounts. Balance sheet balances are positive.",
+  "source": "Senus PLC Information Document, December 2025 (Euronext Dublin)",
+  "periods": {
+    "FY2024": "Year to 30 June 2024 (audited, group)",
+    "FY2025": "Year to 30 June 2025 (audited, group)",
+    "DEC2025": "Balance sheet at 8 December 2025 (company only, not audited)"
+  },
+  "facts": {
+    "FY2024": {
+      "revenue": [688317, 63], "cost_of_sales": [-255840, 63], "gross_profit": [432477, 63],
+      "distribution_costs": [-2353, 63], "admin_expenses": [-1560853, 63], "other_operating_income": [0, 63],
+      "operating_profit": [-1130729, 63], "interest_payable": [-48, 63], "profit_before_tax": [-1130458, 63],
+      "tax": [32363, 63], "profit_after_tax": [-1098095, 63],
+      "depreciation": [19412, 71], "employees": [19, 72],
+      "tangible_assets": [65390, 64], "debtors": [174730, 64], "trade_debtors": [142361, 73], "cash": [424639, 64],
+      "creditors_within_one_year": [90078, 64], "trade_creditors": [26768, 74], "creditors_after_one_year": [0, 64],
+      "bank_loans": [0, 74], "net_assets": [574681, 64],
+      "cf_operating": [-1166697, 68], "capex": [-37350, 68], "disposal_proceeds": [3878, 68],
+      "interest_paid": [-48, 68], "tax_paid": [-14884, 68], "loan_repayments": [-4360, 68],
+      "cf_investing": [-33472, 68], "cf_financing": [-3846, 68],
+      "cash_beginning": [1628654, 68], "cash_end": [424639, 68]
+    },
+    "FY2025": {
+      "revenue": [836991, 63], "cost_of_sales": [-188541, 63], "gross_profit": [648450, 63],
+      "distribution_costs": [-1084, 63], "admin_expenses": [-1286058, 63], "other_operating_income": [4998, 63],
+      "operating_profit": [-633694, 63], "interest_payable": [-2074, 63], "profit_before_tax": [-635768, 63],
+      "tax": [45512, 63], "profit_after_tax": [-590256, 63],
+      "depreciation": [20381, 71], "employees": [18, 72],
+      "tangible_assets": [48788, 64], "debtors": [123003, 64], "trade_debtors": [66990, 73], "cash": [140135, 64],
+      "creditors_within_one_year": [243846, 64], "trade_creditors": [55246, 74], "creditors_after_one_year": [83655, 64],
+      "bank_loans": [93767, 74], "directors_loans": [133013, 74], "net_assets": [-15575, 64],
+      "cf_operating": [-374820, 68], "capex": [-4451, 68], "disposal_proceeds": [1000, 68],
+      "interest_paid": [-2074, 68], "tax_paid": [28428, 68], "loan_repayments": [-6233, 68],
+      "cf_investing": [-3451, 68], "cf_financing": [93767, 68],
+      "cash_beginning": [424639, 68], "cash_end": [140135, 68]
+    },
+    "DEC2025": {
+      "tangible_assets": [38113, 82], "debtors": [261713, 82], "trade_debtors": [13874, 88], "cash": [528379, 82],
+      "creditors_within_one_year": [276030, 82], "trade_creditors": [52617, 88], "creditors_after_one_year": [79155, 82],
+      "bank_loans": [89243, 89], "net_assets": [473023, 82],
+      "profit_after_tax": [-431931, 83], "equity_raised": [854845, 83], "depreciation": [10014, 87]
+    }
+  },
+  "segments_fy2025": {
+    "page": 11,
+    "by_product": {"SOIL": 432458, "TERRAIN": 338949, "ERA": 58900},
+    "by_channel": {"Enterprise": 572650, "Independent": 35953, "R&D": 221704},
+    "customers_by_channel": {"Enterprise": 36, "Independent": 98, "R&D": 4},
+    "total_customers": 138,
+    "ireland_share": {"FY2024": 0.95, "FY2025": 0.78}
+  },
+  "targets": [
+    "Revenue CAGR of at least 50% from FY2025 to FY2030 (p26)",
+    "More than 100 Enterprise customers by FY2030 (p27)",
+    "Average Enterprise contract value above EUR 50,000 by FY2030 (p27)",
+    "Less than 50% of revenue from Ireland by FY2030 (p27)",
+    "EBITDA positive during FY2028 (p27)"
+  ]
+}

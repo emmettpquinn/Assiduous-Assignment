@@ -1,0 +1,17 @@
+[
+  {
+    "id": "senus-information-document-2025",
+    "title": "Senus PLC – Information Document (Euronext Access Direct Listing)",
+    "publisher": "Senus PLC / Euronext Dublin",
+    "publishedAt": "2025-12-18",
+    "url": "https://live.euronext.com/sites/default/files/2025-12/Information%20Document%20-%20SENUS%20PLC.pdf",
+    "localPath": "data/sources/senus-information-document-2025.pdf",
+    "notes": "90 pages. Pages 1–52 are a native text layer (business overview, KPIs, segment tables). Pages 53–90 are scanned images of (a) the audited FY2025 consolidated financial statements of ADF Farm Solutions Limited with FY2024 comparatives and (b) the Senus Limited balance sheet as at 8 December 2025 prepared for PLC re-registration.",
+    "sections": [
+      { "name": "Business overview & segment KPIs", "pages": [10, 11, 12, 13, 14, 15, 16, 17] },
+      { "name": "Operating and financial review", "pages": [25, 26, 27] },
+      { "name": "FY2025 audited consolidated financial statements (scanned)", "pages": [54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76] },
+      { "name": "Balance sheet as at 8 December 2025 (scanned)", "pages": [77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90] }
+    ]
+  }
+]
