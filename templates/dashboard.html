@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% macro table(items) %}
+<table>
+  <thead><tr><th>Metric</th><th>FY24</th><th>FY25</th><th>8 Dec 25</th></tr></thead>
+  <tbody>
+  {% for m in items %}
+    <tr>
+      <td>{{ m.name }}{% if m.note %}<div class="note">{{ m.note }}</div>{% endif %}</td>
+      {% for p in ["FY2024", "FY2025", "DEC2025"] %}
+        <td class="num">{% if p in m["values"] %}{{ m["values"][p] | fmt(m.fmt) }}{% else %}<span class="muted">–</span>{% endif %}</td>
+      {% endfor %}
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endmacro %}
+
+{% block body %}
+<header>
+  <div><strong>Senus PLC</strong> <span class="muted">Board Report · FY2025 + Dec 2025 update</span></div>
+  <nav>
+    <a href="#overview">Overview</a><a href="#growth">Growth</a><a href="#profit">Profitability</a>
+    <a href="#cash">Cash</a><a href="#solvency">Solvency</a><a href="#returns">Returns</a><a href="#data">Data</a>
+  </nav>
+  <div class="muted small">{{ user }} · <a href="{{ url_for('logout') }}">Sign out</a></div>
+</header>
+
+<main>
+  {% set fy24 = facts["FY2024"] %}{% set fy25 = facts["FY2025"] %}{% set dec = facts["DEC2025"] %}
+  <section id="overview">
+    <div class="tiles">
+      <div class="tile"><span>Revenue FY25</span><b>{{ fy25.revenue | fmt("eur") }}</b><em class="up">+{{ "%.1f" % ((fy25.revenue / fy24.revenue - 1) * 100) }}% YoY</em></div>
+      <div class="tile"><span>Gross margin</span><b>{{ (fy25.gross_profit / fy25.revenue) | fmt("pct") }}</b><em class="up">from {{ (fy24.gross_profit / fy24.revenue) | fmt("pct") }}</em></div>
+      <div class="tile"><span>EBITDA FY25</span><b>{{ (fy25.operating_profit + fy25.depreciation) | fmt("eur") }}</b><em class="up">loss narrowed {{ "%.0f" % ((1 - (fy25.operating_profit + fy25.depreciation) / (fy24.operating_profit + fy24.depreciation)) * 100) }}%</em></div>
+      <div class="tile"><span>Cash 8 Dec 25</span><b>{{ dec.cash | fmt("eur") }}</b><em>after €830k raise</em></div>
+      <div class="tile"><span>Runway</span><b>{{ report["Cash & Liquidity"][3]["values"]["DEC2025"] | fmt("months") }}</b><em class="down">{{ report["Cash & Liquidity"][4]["values"]["DEC2025"] | fmt("months") }} at H1 loss rate</em></div>
+      <div class="tile"><span>Customers</span><b>{{ seed.segments_fy2025.total_customers }}</b><em>36 Enterprise</em></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="row">
+          <h2>Commentary</h2>
+          {% if ai_enabled %}
+          <div>
+            <select id="audience">{% for a in audiences %}<option>{{ a }}</option>{% endfor %}</select>
+            <button onclick="generate()">Generate with AI</button>
+          </div>
+          {% endif %}
+        </div>
+        <div id="commentary" class="prose">{{ fallback | replace("\n", "<br>") | safe }}</div>
+        <p class="muted small" id="commentary-src">{% if ai_enabled %}Rule-based summary. Click "Generate with AI" for audience-specific commentary from Claude.{% else %}Rule-based summary (set ANTHROPIC_API_KEY to enable AI commentary).{% endif %}</p>
+      </div>
+      <div class="card">
+        <h2>Ask the board report</h2>
+        <form onsubmit="ask(event)">
+          <input id="question" placeholder="e.g. How long will the cash last, and what are the risks to that?">
+        </form>
+        <div id="answer" class="prose muted">Answers use only the figures in this report.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="growth"><h2>Growth & Revenue</h2>
+    <div class="grid3">
+      <div class="card"><h3>Revenue & gross margin</h3><canvas id="revChart"></canvas></div>
+      <div class="card"><h3>FY25 revenue by product</h3><canvas id="productChart"></canvas></div>
+      <div class="card"><h3>FY25 revenue by channel</h3><canvas id="channelChart"></canvas></div>
+    </div>
+    <div class="card">{{ table(report["Growth & Revenue"]) }}
+      <p class="note">Monthly revenue, bookings and ARR are not disclosed in the published documents, so they are not shown. Product/channel splits sum to €830k vs €837k turnover (unallocated difference €7k).</p></div>
+  </section>
+
+  <section id="profit"><h2>Profitability</h2>
+    <div class="grid2">
+      <div class="card"><h3>Cost breakdown</h3><canvas id="costChart"></canvas></div>
+      <div class="card">{{ table(report["Profitability"]) }}</div>
+    </div>
+  </section>
+
+  <section id="cash"><h2>Cash & Liquidity</h2>
+    <div class="grid2">
+      <div class="card"><h3>FY25 EBITDA to free cash flow</h3><canvas id="bridgeChart"></canvas></div>
+      <div class="card"><h3>Cash balance</h3><canvas id="cashChart"></canvas></div>
+    </div>
+    <div class="card">{{ table(report["Cash & Liquidity"]) }}</div>
+  </section>
+
+  <section id="solvency"><h2>Solvency & Leverage</h2>
+    <div class="card">{{ table(report["Solvency & Leverage"]) }}</div>
+  </section>
+
+  <section id="returns"><h2>Returns</h2>
+    <div class="card">{{ table(report["Returns"]) }}</div>
+  </section>
+
+  <section id="data"><h2>Data & validation</h2>
+    <div class="grid2">
+      <div class="card"><h3>Accounting checks</h3>
+        <table>{% for desc, ok, diff in checks %}
+          <tr><td>{{ desc }}</td><td class="{{ 'up' if ok else 'down' }}">{{ "PASS" if ok else "FAIL (%s)" % diff }}</td></tr>
+        {% endfor %}</table>
+        <p class="note">Every figure is re-checked against these identities each time the page loads.</p>
+      </div>
+      <div class="card"><h3>Source figures</h3>
+        <p class="note">Source: {{ seed.source }}. "ai" = extracted by Claude from the scanned page; "verified" = hand-checked seed. Dec 2025 figures are company-only (not consolidated) and unaudited.</p>
+        <div class="scroll"><table>
+          <thead><tr><th>Period</th><th>Item</th><th>Value</th><th>Page</th><th>Method</th></tr></thead>
+          {% for (period, item), (page, method) in sources %}
+          <tr><td>{{ period }}</td><td>{{ item }}</td><td class="num">{{ "{:,.0f}".format(facts[period][item]) }}</td>
+            <td><a href="{{ url_for('source_pdf') }}#page={{ page }}" target="_blank">p{{ page }}</a></td><td><span class="badge {{ method }}">{{ method }}</span></td></tr>
+          {% endfor %}
+        </table></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const C = {{ charts | tojson }};
+const eur = v => (v < 0 ? "-€" : "€") + Math.abs(v / 1000).toLocaleString(undefined, {maximumFractionDigits: 0}) + "k";
+const colors = ["#2563eb", "#16a34a", "#f59e0b", "#dc2626", "#7c3aed"];
+Chart.defaults.font.family = "system-ui, sans-serif";
+const money = {ticks: {callback: eur}};
+
+new Chart(revChart, {data: {labels: ["FY24", "FY25"], datasets: [
+  {type: "bar", label: "Revenue", data: C.revenue, backgroundColor: colors[0], yAxisID: "y"},
+  {type: "line", label: "Gross margin %", data: C.gross_margin, borderColor: colors[1], yAxisID: "y1"}]},
+  options: {scales: {y: money, y1: {position: "right", min: 0, max: 100, grid: {display: false}}}}});
+
+const pie = (el, obj) => new Chart(el, {type: "doughnut", data: {labels: Object.keys(obj),
+  datasets: [{data: Object.values(obj), backgroundColor: colors}]},
+  options: {plugins: {tooltip: {callbacks: {label: c => c.label + ": " + eur(c.raw)}}}}});
+pie(productChart, C.by_product);
+pie(channelChart, C.by_channel);
+
+const costLabels = Object.keys(C.costs.FY2024);
+new Chart(costChart, {type: "bar", data: {labels: ["FY24", "FY25"], datasets: costLabels.map((k, i) => ({
+  label: k, data: [C.costs.FY2024[k], C.costs.FY2025[k]], backgroundColor: colors[i + 2]}))},
+  options: {scales: {x: {stacked: true}, y: {...money, stacked: true}}}});
+
+// Waterfall: floating bars from running total
+let run = 0;
+const bridge = C.bridge.map(([label, v], i) => {
+  if (i === 0 || i === C.bridge.length - 1) { run = v; return [0, v]; }
+  const start = run; run += v; return [start, run];
+});
+new Chart(bridgeChart, {type: "bar", data: {labels: C.bridge.map(b => b[0]), datasets: [{label: "€",
+  data: bridge, backgroundColor: C.bridge.map(([, v], i) => i === 0 || i === C.bridge.length - 1 ? colors[0] : v >= 0 ? colors[1] : colors[3])}]},
+  options: {plugins: {legend: {display: false}, tooltip: {callbacks: {label: c => eur(C.bridge[c.dataIndex][1])}}}, scales: {y: money}}});
+
+new Chart(cashChart, {type: "line", data: {labels: Object.keys(C.cash), datasets: [{label: "Cash",
+  data: Object.values(C.cash), borderColor: colors[0], fill: false, tension: 0.2}]},
+  options: {plugins: {legend: {display: false}}, scales: {y: money}}});
+
+async function post(url, body) {
+  const r = await fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+  return (await r.json()).text;
+}
+function render(el, text) { el.innerText = text; el.classList.remove("muted"); }
+async function generate() {
+  commentary.innerText = "Generating…";
+  render(commentary, await post("/api/commentary", {audience: audience.value}));
+  document.getElementById("commentary-src").innerText = "Generated by Claude for " + audience.value + " from the figures on this page.";
+}
+async function ask(e) {
+  e.preventDefault();
+  answer.innerText = "Thinking…";
+  render(answer, await post("/api/ask", {question: question.value}));
+}
+</script>
+{% endblock %}
